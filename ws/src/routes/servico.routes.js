@@ -1,19 +1,22 @@
 const express = require('express');
 const router = express.Router();
-const Busboy = require('busboy')
+const Busboy = require('busboy');
 const aws = require('../services/aws');
 const Salao = require('../models/salao')
 const Servico = require('../models/servico')
+const Arquivo = require('../models/arquivo')
 
 router.post('/', async (req, res) => {
-    let busboy = new Busboy({ headers: req.header });
+    let busboy = Busboy({ headers: req.headers });
     busboy.on('finish', async () => {
         try {
-            const { salaoId } = req.body;
+            const { salaoId, servico } = req.body;
             let errors = [];
             let arquivos = [];
 
-            if (req.files && Object.keys(req.files) > 0) {
+            console.log(req.files)
+
+            /*if (req.files && Object.keys(req.files) > 0) {
                 for (let key of Object.keys(req.files)) {
                     const file = req.files[key];
 
@@ -30,12 +33,27 @@ router.post('/', async (req, res) => {
                         arquivos.push(path)
                     }
                 }
-            }
+            }*/
 
             if (errors.length > 0) {
                 res.json(errors[0]);
                 return false;
             }
+
+            //CRIAR SERVIÇO
+            let jsonServico = JSON.parse(servico);
+            const servicoCadastrado = await Servico(jsonServico).save();
+
+            //CRIAR ARQUIVO
+            arquivos = arquivos.map(arquivo => ({
+                referenciaId: servicoCadastrado._id,
+                model: 'Servico',
+                caminho: arquivo,
+            }));
+
+            await Arquivo.insertMany(arquivos);
+            res.json({ servico: servicoCadastrado, arquivos });
+
         } catch (err) {
             res.json({ err: true, message: err.message })
         }
