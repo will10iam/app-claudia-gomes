@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const servicos = new Schema({
+const servico = new Schema({
     salaoId: { type: mongoose.Types.ObjectId, ref: 'Salao', required: true },
     titulo: { type: String, required: true },
     preco: { type: Number, required: true },
@@ -13,4 +13,4 @@ const servicos = new Schema({
     dataCadastro: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('Servicos', servicos)
+module.exports = mongoose.model('Servico', servico)

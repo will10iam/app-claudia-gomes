@@ -7,16 +7,16 @@ const Servico = require('../models/servico')
 const Arquivo = require('../models/arquivo')
 
 router.post('/', async (req, res) => {
-    let busboy = Busboy({ headers: req.headers });
+    let busboy = new Busboy({ headers: req.headers });
     busboy.on('finish', async () => {
         try {
             const { salaoId, servico } = req.body;
-            let errors = [];
+            let error = [];
             let arquivos = [];
 
             console.log(req.files)
 
-            /*if (req.files && Object.keys(req.files) > 0) {
+            if (req.files && Object.keys(req.files) > 0) {
                 for (let key of Object.keys(req.files)) {
                     const file = req.files[key];
 
@@ -28,15 +28,15 @@ router.post('/', async (req, res) => {
                     const response = await aws.uploadToS3(file, path);
 
                     if (response.error) {
-                        errors.push({ error: true, message: response.message })
+                        error.push({ error: true, message: response.message })
                     } else {
                         arquivos.push(path)
                     }
                 }
-            }*/
+            }
 
-            if (errors.length > 0) {
-                res.json(errors[0]);
+            if (error.length > 0) {
+                res.json(error[0]);
                 return false;
             }
 
@@ -54,8 +54,8 @@ router.post('/', async (req, res) => {
             await Arquivo.insertMany(arquivos);
             res.json({ servico: servicoCadastrado, arquivos });
 
-        } catch (err) {
-            res.json({ err: true, message: err.message })
+        } catch (error) {
+            res.json({ error: true, message: error.message })
         }
     });
     req.pipe(busboy)

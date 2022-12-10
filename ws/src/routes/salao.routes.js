@@ -12,7 +12,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.get('/servicos/:salaoId', async (req, res) => {
+router.get('/servico/:salaoId', async (req, res) => {
     try {
         const { salaoId } = req.params;
         const servicos = await Servico.find({
